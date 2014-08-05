@@ -1,4 +1,5 @@
-in vec3 vertexPos;
+#version 120
+attribute vec3 vertexPos;
 uniform mat4 MVP;
 
 void main() {

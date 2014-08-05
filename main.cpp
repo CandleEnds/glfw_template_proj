@@ -1,8 +1,11 @@
-#include <GL/glew.h>
-#include <GL/gl.h>
+
+
+#include "glHeaders.h"
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 #include "loadShader.h"
 
 #include <iostream>
@@ -35,6 +38,7 @@ int main(void)
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
 
+    #ifdef WIN32
     //Initialize GLEW
     glewExperimental=true;
     if (glewInit() != GLEW_OK)
@@ -44,6 +48,7 @@ int main(void)
     	glfwTerminate();
     	exit(EXIT_FAILURE);
     }
+    #endif
 
     // Create all of the buffers
     std::vector<GLfloat> vertices = {

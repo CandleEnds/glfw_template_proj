@@ -14,17 +14,22 @@ add_subdirectory(${GLFW_DIR} glfw)
 include_directories(${GLFW_DIR}/include)
 set(Link_libs glfw ${GLFW_LIBRARIES})
 
-#### GLEW ####
-if (NOT DEFINED ENV{GLEW_LIBRARY})
-	message(FATAL_ERROR "Please set GLEW_LIBRARY variable")
-endif()
-set(GLEW_DIR $ENV{GLEW_LIBRARY})
+if (WIN32)
+	#### GLEW ####
+	if (NOT DEFINED ENV{GLEW_LIBRARY})
+		message(FATAL_ERROR "Please set GLEW_LIBRARY variable")
+	endif()
+	set(GLEW_DIR $ENV{GLEW_LIBRARY})
 
-add_library(glew_static STATIC IMPORTED)
-set_target_properties(glew_static PROPERTIES
-	IMPORTED_LOCATION ${GLEW_DIR}/lib/Release/Win32/glew32.lib)
-list(APPEND Link_libs glew_static)
+
+	add_library(glew_static STATIC IMPORTED)
+	set_target_properties(glew_static PROPERTIES
+		IMPORTED_LOCATION ${GLEW_DIR}/lib/Release/Win32/glew32.lib)
+	list(APPEND Link_libs glew_static)
 include_directories(${GLEW_DIR}/include)
+elseif (APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++0x -stdlib=libc++ -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
+endif()
 
 #### GLM ####
 if (NOT DEFINED ENV{GLM_DIR})
