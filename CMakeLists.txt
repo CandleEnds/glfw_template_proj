@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 set(PROJECT_NAME x02)
 project(${PROJECT_NAME})
 
-###### GLFW ######
+#### GLFW ####
 message($ENV{GLFW_SOURCE})
 if(NOT DEFINED ENV{GLFW_SOURCE})
 	message(FATAL_ERROR "Please set GLFW_SOURCE variable")
@@ -14,7 +14,7 @@ add_subdirectory(${GLFW_DIR} glfw)
 include_directories(${GLFW_DIR}/include)
 set(Link_libs glfw ${GLFW_LIBRARIES})
 
-#### GLEW #####
+#### GLEW ####
 if (NOT DEFINED ENV{GLEW_LIBRARY})
 	message(FATAL_ERROR "Please set GLEW_LIBRARY variable")
 endif()
@@ -26,11 +26,20 @@ set_target_properties(glew_static PROPERTIES
 list(APPEND Link_libs glew_static)
 include_directories(${GLEW_DIR}/include)
 
+#### GLM ####
+if (NOT DEFINED ENV{GLM_DIR})
+	message(FATAL_ERROR "Please set GLM_DIR variable")
+endif()
+set(GLM_DIR $ENV{GLM_DIR})
+
+include_directories(${GLM_DIR})
+
+#### Application ####
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-set(Source_files
-	main.cpp
+FILE(GLOB Source_files
+	*.cpp
 )
 
 add_executable(${PROJECT_NAME} ${Source_files})
