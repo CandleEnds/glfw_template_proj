@@ -55,10 +55,15 @@ int main(void)
     	-1.0f, -1.0f, 0.0f,
     	1.0f, -1.0f, 0.0f,
     	1.0f, 1.0, 0.0f,
-        -1.0f, 1.0f, 0.0f
+        -1.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, -5.0f,
+        1.0f, -1.0f, -5.0f,
+        1.0f, 1.0f, -5.0f,
+        -1.0f, 1.0f, -5.0f
     };
     std::vector<GLuint> indices = {
-        0, 1, 2, 0, 2, 3
+        0, 1, 2, 0, 2, 3,
+        4, 5, 6, 4, 6, 7
     };
 
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -88,7 +93,7 @@ int main(void)
     // Set up transformation matrices
     glm::mat4 Projection;
     glm::mat4 View = glm::lookAt(
-        glm::vec3(4,3,8),
+        glm::vec3(0, 0, 5),
         glm::vec3(0,0,0),
         glm::vec3(0,1,0));
     glm::mat4 Model = glm::mat4(1.0f);
@@ -104,8 +109,15 @@ int main(void)
         glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height);
 
-        ratio = width / (float) height;
-        Projection = glm::perspective(45.0f, ratio, 0.1f, 100.0f);
+        ratio = (float)width / (float)height;
+        //Projection = glm::perspective(45.0f, ratio, 0.1f, 100.0f);
+        float orthoHeight = 10.f;
+
+        float top = orthoHeight / 2.f;
+        float bottom = -top;
+        float left = bottom * ratio;
+        float right = -left;
+        Projection = glm::ortho(left, right, bottom, top, 0.1f, 100.0f);
         MVP = Projection * View * Model;
 
         //Draw
