@@ -9,7 +9,10 @@
 #include "loadShader.h"
 
 #include <iostream>
+#include <sstream>
 #include <vector>
+
+
 
 static void error_callback(int error, const char* description)
 {
@@ -38,17 +41,19 @@ int main(void)
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
 
-    #ifdef WIN32
+#ifdef WIN32
     //Initialize GLEW
-    glewExperimental=true;
-    if (glewInit() != GLEW_OK)
+    glewExperimental = GL_TRUE;
+    GLenum glewInitStatus = glewInit();
+    if (glewInitStatus != GLEW_OK)
     {
-    	fprintf(stderr, "Failed to initialize GLEW\n");
-    	glfwDestroyWindow(window);
-    	glfwTerminate();
-    	exit(EXIT_FAILURE);
+        TRACE("Glew Init Error: " << glewGetErrorString(glewInitStatus));
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        exit(EXIT_FAILURE);
     }
-    #endif
+#endif
+
 
     // Create all of the buffers
     std::vector<GLfloat> vertices = {
@@ -99,7 +104,7 @@ int main(void)
     glm::mat4 Model = glm::mat4(1.0f);
     glm::mat4 MVP;
 
-    std::cout << "Beginning main render loop" << std::endl;
+    TRACE("Beginning main render loop" << std::endl);
     //Main render loop
     while (!glfwWindowShouldClose(window))
     {

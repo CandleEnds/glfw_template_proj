@@ -47,7 +47,11 @@ FILE(GLOB Source_files
 	*.cpp
 )
 
-add_executable(${PROJECT_NAME} ${Source_files})
+FILE(GLOB Header_files
+    *.h
+)
+
+add_executable(${PROJECT_NAME} ${Source_files} ${Header_files})
 
 target_link_libraries(${PROJECT_NAME} ${Link_libs})
 
