@@ -47,6 +47,17 @@ set(GLM_DIR $ENV{GLM_DIR})
 
 include_directories(${GLM_DIR})
 
+#### Box2D ####
+if (NOT DEFINED ENV{BOX2D_DIR})
+	message(FATAL_ERROR "Please set BOX2D_DIR variable")
+endif()
+set (BOX2D_DIR $ENV{BOX2D_DIR})
+
+add_subdirectory(${BOX2D_DIR}/Box2D Box2D)
+include_directories(${BOX2D_DIR})
+set(BOX2D_BUILD_STATIC ON)
+list(APPEND Link_libs Box2D)
+
 #### Application ####
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
