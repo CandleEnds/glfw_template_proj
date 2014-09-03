@@ -31,6 +31,14 @@ elseif (APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++0x -stdlib=libc++ -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
 endif()
 
+#### SOIL ####
+if (NOT DEFINED ENV{SOIL_DIR})
+	message(FATAL_ERROR "Please set SOIL_DIR variable")
+endif()
+set(SOIL_DIR $ENV{SOIL_DIR})
+include_directories(${SOIL_DIR}/src)
+list(APPEND Link_libs ${SOIL_DIR}/lib/libSOIL.a)
+
 #### GLM ####
 if (NOT DEFINED ENV{GLM_DIR})
 	message(FATAL_ERROR "Please set GLM_DIR variable")
