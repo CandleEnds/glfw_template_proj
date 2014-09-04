@@ -13,7 +13,7 @@ public:
 	void Initialize();
 	void KeyHandler(int key, int scancode, int action, int mods);
 	void SimulationStep(float dtSeconds);
-	void Render(glm::mat4& );
+	void Render(int, int);
 	void DrawThing(Thing& thing, glm::mat4&);
 
 	b2Body* createStaticBox(float posX, float posY, float sizeX, float sizeY);

@@ -47,8 +47,26 @@ void Game::SimulationStep(float dtSeconds)
 	m_world.Step(dtSeconds, m_nVelocityIterations, m_nPositionIterations);
 }
 
-void Game::Render(glm::mat4& VP)
+void Game::Render(int pixelWidth, int pixelHeight)
 {
+	glViewport(0, 0, pixelWidth, pixelHeight);
+
+	float ratio = (float)pixelWidth / (float)pixelHeight;
+    float orthoHeight = 15.f;
+    float top = orthoHeight / 2.f;
+    float bottom = -top;
+    float left = bottom * ratio;
+    float right = -left;
+    glm::mat4 Projection = glm::ortho(left, right, bottom, top, 0.1f, 100.0f);
+
+    b2Vec2 pp = m_player->m_pBody->GetPosition();
+    glm::mat4 View = glm::lookAt(
+        glm::vec3(pp.x, pp.y, 5),
+        glm::vec3(pp.x,pp.y,0),
+        glm::vec3(0,1,0));
+
+    glm::mat4 VP = Projection * View;
+
     glUseProgram(m_standardShader);
     DrawThing(*m_player, VP);
     for (Thing& thing : m_staticThings)

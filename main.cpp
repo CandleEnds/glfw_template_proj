@@ -15,6 +15,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <chrono>
 
 Game g_game;
 
@@ -72,45 +73,47 @@ int main(void)
     glm::mat4 View;
     glm::mat4 ViewProjection;
 
-    const float timeStep = 1.0f / 60.0f;
+    //Main loop
+    std::chrono::duration<double> t(0.0);
+    std::chrono::duration<double> dt(0.01);
+    std::chrono::duration<double> accumulator(0.0);
 
-    //Main render loop
+    std::chrono::time_point<std::chrono::system_clock> currentTime, newTime;
+    currentTime = std::chrono::system_clock::now();
+
     while (!glfwWindowShouldClose(window))
     {
-        //Simulate
-        g_game.SimulationStep(timeStep);
+        newTime = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = newTime - currentTime;
+        currentTime = newTime;
+        accumulator += elapsed_seconds;
 
-        //If user has resized window, update viewport and projection
-        float ratio;
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0, 0, width, height);
+        //Simulation
+        while (accumulator >= dt)
+        {
+            g_game.SimulationStep(dt.count());
+            accumulator -= dt;
+            t += dt;
+        }
 
-        ratio = (float)width / (float)height;
+        //Render
+        {
+            TRACE("Render");
+            //If user has resized window, update viewport and projection
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
 
-        float orthoHeight = 10.f;
-        float top = orthoHeight / 2.f;
-        float bottom = -top;
-        float left = bottom * ratio;
-        float right = -left;
-        Projection = glm::ortho(left, right, bottom, top, 0.1f, 100.0f);
+            //Draw
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        b2Vec2 pp = g_game.m_player->m_pBody->GetPosition();
-        View = glm::lookAt(
-            glm::vec3(pp.x, pp.y, 5),
-            glm::vec3(pp.x,pp.y,0),
-            glm::vec3(0,1,0));
+            g_game.Render(width, height);
 
-        ViewProjection = Projection * View;
-
-        //Draw
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        g_game.Render(ViewProjection);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
     }
+
+    //Main loop has exited, clean up
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
