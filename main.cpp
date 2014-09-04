@@ -98,7 +98,6 @@ int main(void)
 
         //Render
         {
-            TRACE("Render");
             //If user has resized window, update viewport and projection
             int width, height;
             glfwGetFramebufferSize(window, &width, &height);

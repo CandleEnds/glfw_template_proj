@@ -26,4 +26,6 @@ public:
 	GLuint m_standardShader;
 	const size_t m_nVelocityIterations = 6;
 	const size_t m_nPositionIterations = 2;
+	float m_rotation = 0;
+	b2Vec2 m_worldUp;
 };

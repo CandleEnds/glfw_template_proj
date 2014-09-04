@@ -4,12 +4,17 @@
 
 #include <GLFW/glfw3.h>
 
+#include <glm/gtc/constants.hpp>
+
+#include <math.h>
+
 
 Game::Game()
 : m_gravity(0.f, -10.f)
 , m_world(m_gravity)
 {
-
+    m_rotation = glm::pi<float>() / 2;
+    m_worldUp = b2Vec2(cos(m_rotation), sin(m_rotation));
 }
 
 void Game::Initialize()
@@ -26,18 +31,30 @@ void Game::KeyHandler(int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
 	{
-		if (key == GLFW_KEY_LEFT)
+		if (key == GLFW_KEY_A)
 		{
 			m_player->m_pBody->ApplyForceToCenter(b2Vec2(-400,0), true);
 		}
-		else if (key == GLFW_KEY_RIGHT)
+		else if (key == GLFW_KEY_D)
 		{
 			m_player->m_pBody->ApplyForceToCenter(b2Vec2(400,0), true);
 		}
-		else if (key == GLFW_KEY_UP)
+		else if (key == GLFW_KEY_W)
 		{
-			m_player->m_pBody->ApplyForceToCenter(b2Vec2(0, 1000), true);
+			m_player->m_pBody->ApplyForceToCenter(1000 * m_worldUp, true);
 		}
+        else if (key == GLFW_KEY_LEFT)
+        {
+            m_rotation -= glm::pi<float>() / 8.0;
+            m_worldUp = b2Vec2(cos(m_rotation), sin(m_rotation));
+            m_world.SetGravity(10 * -m_worldUp);
+        }
+        else if (key == GLFW_KEY_RIGHT)
+        {
+            m_rotation += glm::pi<float>() / 8.0;
+            m_worldUp = b2Vec2(cos(m_rotation), sin(m_rotation));
+            m_world.SetGravity(10 * -m_worldUp);
+        }
 
 	}
 }
@@ -63,8 +80,7 @@ void Game::Render(int pixelWidth, int pixelHeight)
     glm::mat4 View = glm::lookAt(
         glm::vec3(pp.x, pp.y, 5),
         glm::vec3(pp.x,pp.y,0),
-        glm::vec3(0,1,0));
-
+        glm::vec3(m_worldUp.x, m_worldUp.y, 0));
     glm::mat4 VP = Projection * View;
 
     glUseProgram(m_standardShader);
