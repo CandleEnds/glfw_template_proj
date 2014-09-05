@@ -21,11 +21,16 @@ public:
 
 	b2Vec2 m_gravity;
 	b2World m_world;
-	std::vector<Thing> m_staticThings;
+	std::shared_ptr<Thing> m_stage;
 	std::shared_ptr<Thing> m_player;
+
+	float m_playerXVel = 0.f;
+	const float m_playerXVelMax = 15.f;
+	const float m_playerSpeed = 5000.f;
 	GLuint m_standardShader;
 	const size_t m_nVelocityIterations = 6;
 	const size_t m_nPositionIterations = 2;
-	float m_rotation = 0;
+	const float m_angularSpeed;
 	b2Vec2 m_worldUp;
+	b2Vec2 m_stageCenter;
 };
