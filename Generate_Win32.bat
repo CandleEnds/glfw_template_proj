@@ -1,6 +1,6 @@
 mkdir Win32
 pushd Win32
 
-cmake -G"NMake Makefiles" ..
+cmake -G"Visual Studio 12" ..
 
 popd
