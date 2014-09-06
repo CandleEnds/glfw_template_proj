@@ -1,5 +1,7 @@
 #include "thing.h"
 
+#include <iostream>
+
 Thing::Thing(b2Body* pBody)
 : m_pBody(pBody)
 {
@@ -55,25 +57,34 @@ Thing::Thing(b2Body* pBody)
     assert(m_aVertices.size() % 3 == 0);
 
     glGenBuffers(1, &vertexBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-    glBufferData(GL_ARRAY_BUFFER, 
-        m_aVertices.size() * sizeof(GLfloat), 
-        &m_aVertices[0], 
-        GL_STATIC_DRAW);
+    if (!m_aVertices.empty())
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+        glBufferData(GL_ARRAY_BUFFER,
+            m_aVertices.size() * sizeof(GLfloat),
+            &m_aVertices[0],
+            GL_STATIC_DRAW);
+    }
 
     glGenBuffers(1, &indexBufferID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-        m_aIndices.size() * sizeof(GLuint), 
-        &m_aIndices[0], 
-        GL_STATIC_DRAW);
-
+    if (!m_aIndices.empty())
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+            m_aIndices.size() * sizeof(GLuint),
+            &m_aIndices[0],
+            GL_STATIC_DRAW);
+    }
     glGenBuffers(1, &edgeIndexBufferID);
+    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, edgeIndexBufferID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        m_aEdgeIndices.size() * sizeof(GLuint),
-        &m_aEdgeIndices[0],
-        GL_STATIC_DRAW);
+    if (!m_aEdgeIndices.empty())
+    {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+            m_aEdgeIndices.size() * sizeof(GLuint),
+            &m_aEdgeIndices[0],
+            GL_STATIC_DRAW);
+    }
 }
 
 b2Vec2 Thing::GetPosition() const

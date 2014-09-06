@@ -4,12 +4,15 @@ set(PROJECT_NAME x02)
 project(${PROJECT_NAME})
 
 #### GLFW ####
-message($ENV{GLFW_SOURCE})
 if(NOT DEFINED ENV{GLFW_SOURCE})
 	message(FATAL_ERROR "Please set GLFW_SOURCE variable")
 endif()
 set(GLFW_DIR $ENV{GLFW_SOURCE})
 
+set(GLFW_BUILD_EXAMPLES OFF)
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_DOCS OFF)
+set(GLFW_INSTALL OFF)
 add_subdirectory(${GLFW_DIR} glfw)
 include_directories(${GLFW_DIR}/include)
 set(Link_libs glfw ${GLFW_LIBRARIES})
@@ -32,12 +35,12 @@ elseif (APPLE)
 endif()
 
 #### SOIL ####
-if (NOT DEFINED ENV{SOIL_DIR})
-	message(FATAL_ERROR "Please set SOIL_DIR variable")
-endif()
-set(SOIL_DIR $ENV{SOIL_DIR})
-include_directories(${SOIL_DIR}/src)
-list(APPEND Link_libs ${SOIL_DIR}/lib/libSOIL.a)
+#if (NOT DEFINED ENV{SOIL_DIR})
+#	message(FATAL_ERROR "Please set SOIL_DIR variable")
+#endif()
+#set(SOIL_DIR $ENV{SOIL_DIR})
+#include_directories(${SOIL_DIR}/src)
+#list(APPEND Link_libs ${SOIL_DIR}/lib/libSOIL.a)
 
 #### GLM ####
 if (NOT DEFINED ENV{GLM_DIR})
@@ -53,9 +56,10 @@ if (NOT DEFINED ENV{BOX2D_DIR})
 endif()
 set (BOX2D_DIR $ENV{BOX2D_DIR})
 
-add_subdirectory(${BOX2D_DIR}/Box2D Box2D)
-include_directories(${BOX2D_DIR})
 set(BOX2D_BUILD_STATIC ON)
+set(BOX2D_BUILD_EXAMPLES OFF)
+add_subdirectory(${BOX2D_DIR}/Box2D Box2D)
+include_directories(${BOX2D_DIR}/Box2D)
 list(APPEND Link_libs Box2D)
 
 #### Application ####
@@ -76,5 +80,5 @@ add_executable(${PROJECT_NAME} ${Source_files} ${Header_files})
 target_link_libraries(${PROJECT_NAME} ${Link_libs})
 
 add_custom_target(postbuild ALL)
-
+add_custom_command(TARGET postbuild POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GLEW_DIR}/bin/Release/Win32/glew32.dll $<TARGET_FILE_DIR:${PROJECT_NAME}>/)
 #add_custom_command(TARGET postbuild POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders)

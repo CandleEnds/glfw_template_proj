@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <SOIL.h>
+//#include <SOIL.h>
 
 #include <iostream>
 #include <sstream>
@@ -91,7 +91,7 @@ int main(void)
         //Simulation
         while (accumulator >= dt)
         {
-            g_game.SimulationStep(dt.count());
+            g_game.SimulationStep((float)dt.count());
             accumulator -= dt;
             t += dt;
         }
