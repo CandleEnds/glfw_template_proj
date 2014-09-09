@@ -142,6 +142,7 @@ void Game::DrawThing(Thing& thing, glm::mat4& VP)
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, thing.vertexBufferID);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, thing.indexBufferID);
 	glVertexAttribPointer(
 		vertexPosLoc, //Attrib 0

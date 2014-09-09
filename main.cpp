@@ -1,6 +1,8 @@
 #include "glHeaders.h"
 #include "loadShader.h"
 #include "game.h"
+#include "rocketGLRenderer.h"
+#include "rocketSystemInterface.h"
 
 #include <GLFW/glfw3.h>
 
@@ -11,6 +13,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 //#include <SOIL.h>
+
+#include <Rocket/Core.h>
 
 #include <iostream>
 #include <sstream>
@@ -60,6 +64,8 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 #endif
+
+    Rocket::Core::Context* context = nullptr;
 
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 

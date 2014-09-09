@@ -73,6 +73,7 @@ if (NOT DEFINED ENV{LIBROCKET_DIR})
 endif()
 set(LIBROCKET_DIR $ENV{LIBROCKET_DIR})
 add_subdirectory(${LIBROCKET_DIR}/Build libRocket)
+include_directories(${LIBROCKET_DIR}/Include)
 
 #### Application ####
 
