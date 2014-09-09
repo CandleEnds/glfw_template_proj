@@ -19,79 +19,47 @@ Game::Game()
 
 void Game::Initialize()
 {
-    float bs = 16.f;
-    float bw = 1.f;
-    m_stageCenter = b2Vec2(0.f, bs);
+    m_stageCenter = b2Vec2(0.f, 16.f);
 
     b2BodyDef bodyDef;
     bodyDef.type = b2_kinematicBody;
     bodyDef.position.Set(m_stageCenter.x, m_stageCenter.y);
     b2Body* stageBody = m_world.CreateBody(&bodyDef);
 
-    // b2PolygonShape box;
-    // box.SetAsBox(bs, bw, b2Vec2(0, -bs), 0.f);
-    // stageBody->CreateFixture(&box, 0.0f);
+    const size_t numVerts = 32;
+    std::vector<b2Vec2> verts;
+    verts.reserve(numVerts);
+    float stageRadius = 24.f;
 
-    // box.SetAsBox(bw, bs, b2Vec2(-bs, 0), 0.f);
-    // stageBody->CreateFixture(&box, 0.0f);
-
-    // box.SetAsBox(bw, bs, b2Vec2(bs, 0), 0.f);
-    // stageBody->CreateFixture(&box, 0.f);
-
-    // box.SetAsBox(bs, bw, b2Vec2(0, bs), 0.f);
-    // stageBody->CreateFixture(&box, 0.f);
-
-    std::vector<b2Vec2> verts = {
-        b2Vec2(-bs, -bs),
-        b2Vec2(bs, -bs),
-        b2Vec2(bs, bs),
-        b2Vec2(-bs, bs)
-    };
+    float twopi = 2 * glm::pi<float>();
+    float increment = twopi / numVerts;
+    for (int i = 0; i < numVerts; i++)
+    {
+        float angle = increment * i;
+        verts.push_back(stageRadius * b2Vec2(cos(angle), sin(angle)));
+    }
 
     b2ChainShape chain;
     chain.CreateLoop(
         &verts[0],
-        4
+        verts.size()
     );
 
     stageBody->CreateFixture(&chain, 0.f);
 
     m_stage = std::make_shared<Thing>(stageBody);
 
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.position.Set(0.f, 4.f);
-    bodyDef.fixedRotation = true;
-    b2Body* dynamicBody = m_world.CreateBody(&bodyDef);
-    b2PolygonShape dynamicBox;
-    dynamicBox.SetAsBox(1.f, 1.f);
-    b2FixtureDef fixtureDef;
-    fixtureDef.shape = &dynamicBox;
-    fixtureDef.density = 10.0f;
-    fixtureDef.friction = 10.0f;
-    dynamicBody->CreateFixture(&fixtureDef);
-
-	m_player = std::make_shared<Thing>(dynamicBody);
+    m_player = std::make_shared<Player>(m_world);
 
     m_standardShader = LoadShader("../shaders/vert_basic.glsl", "../shaders/frag_basic.glsl");
 }
 
 void Game::KeyHandler(int key, int scancode, int action, int mods)
 {
+    bool handled = true;
 	if (action == GLFW_PRESS)
 	{
-		if (key == GLFW_KEY_A)
-		{
-            m_playerXVel -= m_playerSpeed;
-		}
-		else if (key == GLFW_KEY_D)
-		{
-            m_playerXVel += m_playerSpeed;
-		}
-		else if (key == GLFW_KEY_W)
-		{
-			m_player->m_pBody->ApplyForceToCenter(60000 * m_worldUp, true);
-		}
-        else if (key == GLFW_KEY_LEFT)
+        if (key == GLFW_KEY_LEFT)
         {
             m_stage->m_pBody->SetAngularVelocity(m_angularSpeed);
         }
@@ -99,33 +67,37 @@ void Game::KeyHandler(int key, int scancode, int action, int mods)
         {
             m_stage->m_pBody->SetAngularVelocity(-m_angularSpeed);
         }
+        else
+        {
+            handled = false;
+        }
 	}
     else if (action == GLFW_RELEASE)
     {
-        if (key == GLFW_KEY_A) 
-        {
-            m_playerXVel += m_playerSpeed;
-        }
-        else if (key == GLFW_KEY_D)
-        {
-            m_playerXVel -= m_playerSpeed;
-        }
-        else if (key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT)
+        if (key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT)
         {
             m_stage->m_pBody->SetAngularVelocity(0);
         }
+        else
+        {
+            handled = false;
+        }
+    }
+
+    if (!handled)
+    {
+        m_player->KeyHandler(key, scancode, action, mods);
     }
 }
 
 void Game::SimulationStep(float dtSeconds)
 {
-    const b2Vec2& playerVel = m_player->m_pBody->GetLinearVelocity();
-    if ((m_playerXVel < 0 && playerVel.x > -m_playerXVelMax) ||
-        (m_playerXVel >= 0 && playerVel.x < m_playerXVelMax))
-    {
-        m_player->m_pBody->ApplyForceToCenter(b2Vec2(m_playerXVel, 0), true);
-    }
+    m_player->PreSimulation(dtSeconds);
+
 	m_world.Step(dtSeconds, m_nVelocityIterations, m_nPositionIterations);
+    
+    m_player->PostSimulation();
+
 }
 
 void Game::Render(int pixelWidth, int pixelHeight)
@@ -140,15 +112,15 @@ void Game::Render(int pixelWidth, int pixelHeight)
     float right = -left;
     glm::mat4 Projection = glm::ortho(left, right, bottom, top, 0.1f, 100.0f);
 
-    //b2Vec2 pp = m_player->m_pBody->GetPosition();
+    b2Vec2 pp = m_player->m_thing->m_pBody->GetPosition();
     glm::mat4 View = glm::lookAt(
-        glm::vec3(m_stageCenter.x, m_stageCenter.y, 5),
-        glm::vec3(m_stageCenter.x, m_stageCenter.y, 0),
+        glm::vec3(pp.x, pp.y, 5),
+        glm::vec3(pp.x, pp.y, 0),
         glm::vec3(m_worldUp.x, m_worldUp.y, 0));
     glm::mat4 VP = Projection * View;
 
     glUseProgram(m_standardShader);
-    DrawThing(*m_player, VP);
+    DrawThing(*m_player->m_thing, VP);
     DrawThing(*m_stage, VP);
 }
 
@@ -195,29 +167,3 @@ void Game::DrawThing(Thing& thing, glm::mat4& VP)
 	glDisableVertexAttribArray(0);
 }
 
-b2Body* Game::createStaticBox(float posX, float posY, float sizeX, float sizeY)
-{
-    b2BodyDef bodyDef;
-    bodyDef.position.Set(posX, posY);
-    b2Body* body = m_world.CreateBody(&bodyDef);
-    b2PolygonShape box;
-    box.SetAsBox(sizeX, sizeY);
-    body->CreateFixture(&box, 0.0f);
-    return body;
-}
-
-b2Body* Game::createDynamicBox(float posX, float posY, float sizeX, float sizeY)
-{
-    b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.position.Set(posX, posY);
-    b2Body* body = m_world.CreateBody(&bodyDef);
-    b2PolygonShape dynamicBox;
-    dynamicBox.SetAsBox(sizeX, sizeY);
-    b2FixtureDef fixtureDef;
-    fixtureDef.shape = &dynamicBox;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.3f;
-    body->CreateFixture(&fixtureDef);
-    return body;
-}

@@ -23,3 +23,18 @@ public:
     GLuint indexBufferID;
     GLuint edgeIndexBufferID;
 };
+
+class Player 
+{
+public:
+    Player(b2World& world);
+    void KeyHandler(int key, int scancode, int action, int mods);
+    void PreSimulation(float dtSeconds);
+    void PostSimulation();
+
+    float m_XVel;
+    const float m_XVelMax = 15.f;
+    const float m_speed = 5000.f;
+    const float m_jumpForce = 60000.f;
+    std::shared_ptr<Thing> m_thing;
+};
